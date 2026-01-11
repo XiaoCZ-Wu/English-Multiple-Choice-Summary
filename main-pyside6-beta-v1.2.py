@@ -6,6 +6,7 @@ import zipfile
 import csv
 import random
 import threading
+# import keyboard
 
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -55,10 +56,14 @@ class main(QObject):
         self.time_thread_event = None  # 线程事件
         self.questions_statistics = []  # 统计题目信息，下标0：0-错 1-对；下标1：分类的id；下标2：用时（s）
         self.show_answer = None  # 记录当前是否已经显示了答案
+        self.is_report = False  # 记录是否已经生成报告
 
         # 设置字体（part1）
         self.font = QFont(self.config["font-name"], self.config["font-size"])
         self.app.setFont(self.font)
+
+        # 快捷键
+
 
         self.build()
 
@@ -92,7 +97,7 @@ class main(QObject):
             # “开始练习”按钮; “录入错题”按钮; “导出错题”按钮; “设置”按钮; 保存表单; 回到首页; 重新加载数据; 回到首页
             self.filter, self.select_all, self.export_format, self.rs_accu_rate, self.back, self.apply_settings,
             # 筛选题目; 导出错题页面筛选结果的全选; 导出错题; 重置筛选条件：正确率; 回到首页; 回到首页; self.select_dir
-            self.select_dir, self.save_edits, self.backup, self.back, self.last_question, self.confirm_answer,
+            self.select_dir, self.save_edits, self.backup, self.back, self.Favourites, self.confirm_answer,
             # 选择导出文件的目录; 保存修改后的题目; 备份json数据; 返回首页（结束线程）; 切换到上一题; 提交答案并切换到下一题
             self.chat_robot, self.back
             # 将问题发送给AI; 返回首页（结束线程）
@@ -256,13 +261,13 @@ class main(QObject):
             label = [
                 self.main_window.label_14, self.main_window.label_15, self.main_window.label_16,
                 self.main_window.label_17, self.main_window.label_18, self.main_window.label_19,
-                self.main_window.label_20, self.main_window.label_21,
+                self.main_window.label_20, self.main_window.label_21, self.main_window.label_23,
                 self.main_window.radioButton_18, self.main_window.radioButton_19, self.main_window.radioButton_20,
                 self.main_window.radioButton_21
             ]
             text = [
                 "第 - 题，共 - 题（0.00%）", "单题用时：00: 00", "累计用时：00: 00", "第 - 次刷到该题", "过往正确率：0.00%",
-                "当前练习模式：-", "所属套题：-", "正确答案：-", "A. 选项", "B. 选项", "C. 选项", "D. 选项"
+                "当前练习模式：-", "所属套题：-", "正确答案：-", "", "A. 选项", "B. 选项", "C. 选项", "D. 选项"
             ]
             for idx, lbl in enumerate(label): lbl.setText(text[idx])
             # 初始化时间
@@ -278,13 +283,13 @@ class main(QObject):
             self.prepared_questions = []  # 清空已准备的题目
             if self.mode == 0:  # 无尽模式
                 # 创建题目列表（随机）
-                self.prepared_questions = random.sample(self.questions[: 5], 5)
+                self.prepared_questions = random.sample(self.questions, len(self.questions))
                 self.update()
                 self.time_thread = threading.Thread(target=self.record_time)
                 self.time_thread.start()  # 计时开始
                 self.time_thread_event = threading.Event()
             elif self.mode == 1:  # 套题模式
-                pass
+                QMessageBox.information(self.main_window, "提示", "此功能还没做")
 
     def update(self):
         """切换题目"""
@@ -350,15 +355,14 @@ class main(QObject):
             f""  # 点击确认答案按钮后才显示解析
         )
 
-    def last_question(self):
+    def Favourites(self):
         """点击并切换到上一道题"""
-        pass
+        QMessageBox.information(self.main_window, "提示", "此功能还没做")
 
     def confirm_answer(self):
         """点击确认答案按钮后核对答案并显示解析"""
         # 判断按钮文本是否为“生成报告”
         if self.current_question == len(self.prepared_questions):
-            self.main_window.stackedWidget.setCurrentIndex(5)
             self.show_report()
             return
         # 判断按钮文本是否为“下一题”
@@ -412,6 +416,9 @@ class main(QObject):
 
     def show_report(self):
         """生成报告"""
+        self.main_window.stackedWidget.setCurrentIndex(5)
+        print(22222)
+        self.is_report = True
         # 统计
         tmp_seconds = 0
         tmp_accu = 0
@@ -438,7 +445,10 @@ class main(QObject):
                 classification_accu[idx].append("0.00%")
 
         total_time = f"{int(self.total_time / 60)}m{self.total_time % 60}s"
-        average_seconds = int(tmp_seconds / len(self.questions_statistics))
+        try:
+            average_seconds = int(tmp_seconds / len(self.questions_statistics))
+        except ZeroDivisionError:
+            average_seconds = int(tmp_seconds / 1)
         average_time = f"{int(average_seconds / 60)}m{average_seconds % 60}s"
         question_count = len(self.questions_statistics)
         for idx, item in enumerate([total_time, average_time, question_count]):
@@ -456,6 +466,9 @@ class main(QObject):
             with open("./data/questions.json", "w", encoding="utf-8") as file:
                 json.dump(self.questions, file, ensure_ascii=False, indent=2)
         except Exception as e:
+            t = datetime.now().strftime('%y%m%d_%H%M%S')
+            with open(f"./backup/temp_{t}", "w", encoding="utf-8") as file:
+                file.write(str(self.questions))
             QMessageBox.critical(self.main_window, "Error", f"{e}")
 
     def record_time(self):
@@ -515,6 +528,9 @@ class main(QObject):
             with open("./data/questions.json", "w", encoding="utf-8") as file:
                 json.dump(self.questions, file, ensure_ascii=False, indent=2)
         except Exception as e:
+            t = datetime.now().strftime('%y%m%d_%H%M%S')
+            with open(f"./backup/temp_{t}", "w", encoding="utf-8") as file:
+                file.write(str(self.questions))
             QMessageBox.critical(self.main_window, "Error", f"{e}")
         # 清空并重置表单
         for text_edit in [
@@ -533,16 +549,27 @@ class main(QObject):
         """返回首页"""
         # 从“开始练习”页面返回的
         if self.current_question != -1:
+            if self.is_report is False:
+                reply = QMessageBox.question(
+                    self.main_window, "提示", "退出将会按照现有的进度生成报告! 是否继续?",
+                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+                )
+                if reply == QMessageBox.Yes: self.show_report()
+                return
             self.current_question = -1
             self.time_thread = None
             self.time_thread_event = None
             self.single_time = 0
             self.total_time = 0
-            self.questions_statistics = []
+            self.show_answer = None
+            self.questions_statistics.clear()
             self.main_window.textEdit_11.clear()
         # 从“题目管理”页面返回的
         self.main_window.setWindowTitle(self.window_title)  # 重新设置窗口标题
         self.reload_json(from_code=True)  # 返回相当于不保存
+        # 从“设置”页面返回的
+        self.init_settings_page()
+            # 题组这部分记得做
 
         # 切换页面
         self.main_window.stackedWidget.setCurrentIndex(0)
@@ -921,6 +948,7 @@ class main(QObject):
                                 self.main_window, "Error",
                                 f"存在非法数据，请修改后再保存！\ninvalid ids: {invalid}\nrow: {row}"
                             )
+                            return
                         else:
                             self.questions[idx] = modified_question.copy()
                             self.result_list[row] = modified_question.copy()
@@ -936,10 +964,14 @@ class main(QObject):
         try:
             with open("./data/questions.json", "w", encoding="utf-8") as file:
                 json.dump(self.questions, file, ensure_ascii=False, indent=2)
+            print(invalid)
             if len(invalid) == 0:
                 self.check_comboBox()
                 QMessageBox.information(self.main_window, "提示", "题库保存成功!")
         except Exception as e:
+            t = datetime.now().strftime('%y%m%d_%H%M%S')
+            with open(f"./backup/temp_{t}", "w", encoding="utf-8") as file:
+                file.write(str(self.questions))
             QMessageBox.critical(self.main_window, "Error", f"{e}")
 
     def check_comboBox(self):
