@@ -49,12 +49,32 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildozer-
           
+    - name: Accept Android SDK licenses
+      run: |
+        # 创建 Android SDK 目录
+        mkdir -p ~/.buildozer/android/platform/android-sdk
+        
+        # 下载并解压命令行工具
+        cd ~/.buildozer/android/platform
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+        unzip -q commandlinetools-linux-11076708_latest.zip
+        mkdir -p android-sdk/cmdline-tools/latest
+        mv cmdline-tools/* android-sdk/cmdline-tools/latest/ 2>/dev/null || true
+        
+        # 设置环境变量
+        export ANDROID_SDK_ROOT=~/.buildozer/android/platform/android-sdk
+        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
+        
+        # 接受所有许可证
+        yes | sdkmanager --licenses || true
+        
     - name: Build APK
       working-directory: mobile_app
       run: |
         # 设置环境变量
         export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
         export PATH=$PATH:$JAVA_HOME/bin
+        export ANDROID_SDK_ROOT=~/.buildozer/android/platform/android-sdk
         
         # 显示版本信息
         java -version
