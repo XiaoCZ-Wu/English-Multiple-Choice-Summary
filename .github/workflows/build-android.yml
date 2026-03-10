@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # 使用 Ubuntu 22.04，兼容性更好
     
     steps:
     - name: Checkout code
@@ -24,16 +24,17 @@ jobs:
       with:
         python-version: '3.10'
         
-    - name: Install dependencies
+    - name: Install system dependencies
       run: |
-        sudo apt update
-        sudo apt install -y \
+        sudo apt-get update
+        sudo apt-get install -y \
           python3-pip python3-venv git zip unzip \
           openjdk-17-jdk autoconf libtool pkg-config \
           zlib1g-dev libncurses5-dev libncursesw5-dev \
-          libtinfo5 cmake libffi-dev libssl-dev automake
+          libtinfo5 cmake libffi-dev libssl-dev automake \
+          libltdl-dev
           
-    - name: Install Buildozer
+    - name: Install Buildozer and dependencies
       run: |
         python -m pip install --upgrade pip
         pip install buildozer cython
@@ -51,25 +52,39 @@ jobs:
     - name: Build APK
       working-directory: mobile_app
       run: |
-        buildozer android debug
+        # 设置环境变量
+        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+        export PATH=$PATH:$JAVA_HOME/bin
+        
+        # 显示版本信息
+        java -version
+        buildozer --version
+        
+        # 构建 APK（显示详细日志）
+        buildozer android debug 2>&1 | tee build.log
+        
+    - name: Check build output
+      if: always()
+      working-directory: mobile_app
+      run: |
+        echo "=== Build directory contents ==="
+        ls -la bin/ 2>/dev/null || echo "bin/ directory not found"
+        
+        echo "=== Build log tail ==="
+        tail -100 build.log 2>/dev/null || echo "No build.log found"
         
     - name: Upload APK
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: android-apk
         path: mobile_app/bin/*.apk
         retention-days: 30
         
-    - name: Create Release
-      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-      uses: softprops/action-gh-release@v1
+    - name: Upload build logs
+      if: failure()
+      uses: actions/upload-artifact@v4
       with:
-        files: mobile_app/bin/*.apk
-        tag_name: v${{ github.run_number }}
-        name: Release v${{ github.run_number }}
-        body: |
-          Android APK 自动构建
-          - 构建时间: ${{ github.event.head_commit.timestamp }}
-          - 提交: ${{ github.event.head_commit.message }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: build-logs
+        path: mobile_app/build.log
+        retention-days: 7
