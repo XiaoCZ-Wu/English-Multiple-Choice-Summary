@@ -361,6 +361,6 @@ Apache-2.0 License
 
 ---
 
-**作者**：AI Assistant  
+**作者**：Trae Kimi-K2.5  
 **项目地址**：[GitHub 地址]  
 **问题反馈**：[Issues 页面]
