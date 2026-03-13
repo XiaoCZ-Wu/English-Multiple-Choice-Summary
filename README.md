@@ -183,52 +183,53 @@ OCR 识别需要使用**支持视觉的多模态模型**，例如：
 ## 项目结构
 
 ```
-英语单选/
-├── main.pyw                     # 程序入口（Windows 窗口化）
-├── requirements.txt             # 依赖列表
-├── README.md                    # 项目说明
-├── src/                         # 源代码目录
+English-Multiple-Choice-Summary/
+├── main.pyw                     		# 程序入口（Windows 窗口化）
+├── requirements.txt             		# 依赖列表
+├── README.md                   	 	# 项目说明
+├── ToEXE.bat                   	 	# 打包脚本
+├── src/                         		# 源代码目录
 │   ├── __init__.py
-│   ├── main.py                  # 应用程序主入口
-│   ├── models/                  # 数据模型层
+│   ├── main.py                  		# 应用程序主入口
+│   ├── models/                  		# 数据模型层
 │   │   ├── __init__.py
-│   │   ├── question.py          # 题目数据模型
-│   │   ├── config.py            # 配置模型
-│   │   └── data_manager.py      # 数据管理器
-│   ├── core/                    # 核心业务逻辑
+│   │   ├── question.py          		# 题目数据模型
+│   │   ├── config.py            		# 配置模型
+│   │   └── data_manager.py      		# 数据管理器
+│   ├── core/                    		# 核心业务逻辑
 │   │   ├── __init__.py
-│   │   ├── practice_manager.py  # 练习管理
-│   │   ├── export_manager.py    # 导出功能
-│   │   ├── statistics.py        # 统计功能
-│   │   └── lan_server.py        # 局域网服务器
-│   ├── ui/                      # 界面层
+│   │   ├── practice_manager.py  		# 练习管理
+│   │   ├── export_manager.py    		# 导出功能
+│   │   ├── statistics.py        		# 统计功能
+│   │   └── lan_server.py        		# 局域网服务器
+│   ├── ui/                      		# 界面层
 │   │   ├── __init__.py
-│   │   ├── main_window.py       # 主窗口
-│   │   ├── ocr_window.py        # OCR 识别窗口
-│   │   ├── screenshot_tool.py   # 截图工具
+│   │   ├── main_window.py       		# 主窗口
+│   │   ├── ocr_window.py        		# OCR 识别窗口
+│   │   ├── screenshot_tool.py   		# 截图工具
 │   │   └── dialogs/
 │   │       ├── __init__.py
-│   │       ├── export_dialog.py # 导出对话框
-│   │       ├── ai_chat_dialog.py# AI 对话对话框
-│   │       ├── ai_config_dialog.py # AI 配置对话框
-│   │       └── source_dialog.py # 来源设置对话框
-│   └── utils/                   # 工具函数
-│       ├── __init__.py
-│       ├── constants.py         # 常量定义
-│       ├── helpers.py           # 辅助函数
-│       └── logger.py            # 日志模块
-├── data/                        # 数据目录
-│   ├── questions.json           # 题目数据
-│   └── config.json              # 配置文件
-├── log/                         # 日志目录
-│   └── app_YYMMDD_HHMMSS.log    # 运行日志
-├── src/ui_dir/                  # UI 文件
-│   └── main.ui                  # Qt Designer 设计的界面
-├── src/ico/                     # 图标文件
-│   └── ico.ico
-├── backup/                      # 备份目录
-│   └── restore_points/          # 自动备份目录
-└── output/                      # 输出目录
+│   │       ├── export_dialog.py 		# 导出对话框
+│   │       ├── ai_chat_dialog.py		# AI 对话对话框
+│   │       ├── ai_config_dialog.py 	# AI 配置对话框
+│   │       └── source_dialog.py 		# 来源设置对话框
+│   ├── utils/                   		# 工具函数
+│   │   ├── __init__.py
+│   │   ├── constants.py         		# 常量定义
+│   │   ├── helpers.py           		# 辅助函数
+│   │   └── logger.py            		# 日志模块
+│   ├── ui_dir/                  		# UI 文件
+│   │   └── main.ui              		# Qt Designer 设计的界面
+│   └── ico/                     		# 图标文件
+│       └── ico.ico
+├── data/                        		# 数据目录
+│   ├── questions.json           		# 题目数据
+│   └── config.json              		# 配置文件
+├── log/                         		# 日志目录
+│   └── app_YYMMDD_HHMMSS.log    		# 运行日志
+├── backup/                      		# 备份目录
+│   └── restore_points/          		# 自动备份目录
+└── output/                      		# 输出目录
 ```
 
 ## 数据文件说明
