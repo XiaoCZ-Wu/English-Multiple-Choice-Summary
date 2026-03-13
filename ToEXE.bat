@@ -1,0 +1,1 @@
+venv\Scripts\pyinstaller.exe --name="英语单选错题总结" --windowed --icon=src\ico\ico.ico --add-data "src\ui_dir;src\ui_dir" --add-data "src\ico;src\ico" main.pyw

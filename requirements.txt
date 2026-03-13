@@ -1,0 +1,26 @@
+# English Practice System Dependencies
+# Python 3.8+
+
+# GUI Framework
+PySide6>=6.0.0
+
+# Document Processing
+python-docx>=0.8.11
+docx2pdf>=0.1.8
+
+# Table Formatting
+tabulate>=0.9.0
+
+# Image Processing
+Pillow>=9.0.0
+
+# OCR and AI Service
+requests>=2.28.0
+
+# LAN Server (for mobile app)
+Flask>=2.3.0
+flask-cors>=4.0.0
+Werkzeug>=2.3.0
+
+# Packaging
+pyinstaller>=6.19.0
